@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import { db, onValue, ref, set } from "./services/firebase";
 import LogsChart from "./LogsChart";
 
+const levelsValue = new Map();
+levelsValue.set("empty", 0);
+levelsValue.set("moderate", 50);
+levelsValue.set("full", 100);
 function App() {
   const [temperature, setTemperature] = useState(0);
   const [humidity, setHumidity] = useState(0);
   const [waterLevel, setWaterLevel] = useState(null);
   const [soilMoisture, setSoilMoisture] = useState(0);
   const [waterPumpStatus, setWaterPumpStatus] = useState("off");
+
   useEffect(() => {
     const liveValuesRef = ref(db, "liveValues");
     const unsubscribe = onValue(liveValuesRef, (snapshot) => {
@@ -52,7 +57,12 @@ function App() {
           color="green"
           sign="°H"
         />
-        <CircularProgress title="Water Level" value={waterLevel} color="blue" />
+        <CircularProgress
+          title="Water Level"
+          value={levelsValue.get(waterLevel)}
+          color=""
+          sign="%"
+        />
         <CircularProgress
           title="Soil Moisture"
           value={soilMoisture}
@@ -85,7 +95,7 @@ function CircularProgress({ title, value, color = "blue", sign = "%" }) {
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-32 h-32">
-        <div className="absolute inset-0 flex items-center justify-center text-lg font-bold">
+        <div className="absolute inset-0 capitalize flex items-center justify-center text-lg font-bold">
           {value} {sign}
         </div>
         <svg className="w-full h-full" viewBox="0 0 100 100">
